@@ -163,6 +163,7 @@ class FridayAgent(BaseAgent):
 
         The method dynamically adapts the execution strategy based on the type of sub-task, utilizing the executor component for code execution, API interaction, or question-answering as appropriate.
         """
+        # tool_node是planner的核心属性,是一个dict数据结构，包含所有工具节点的信息
         tool_node = self.planner.tool_node[tool_name]
         description = tool_node.description
         logging.info("The current subtask is: {subtask}".format(subtask=description))

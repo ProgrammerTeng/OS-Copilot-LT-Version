@@ -1,3 +1,6 @@
+from typing import Any
+
+
 from oscopilot.tool_repository.manager.action_node import ActionNode
 from collections import defaultdict, deque
 from oscopilot.modules.base_module import BaseModule
@@ -17,7 +20,7 @@ class FridayPlanner(BaseModule):
     def __init__(self, prompt):
         super().__init__()
         self.tool_num = 0
-        self.tool_node = {}
+        self.tool_node: dict[Any, Any] = {}
         self.prompt = prompt
         self.tool_graph = defaultdict(list)
         self.sub_task_list = []
@@ -193,7 +196,9 @@ class FridayPlanner(BaseModule):
             task_description = task_info['description']
             task_type = task_info['type']
             task_dependencies = task_info['dependencies']
+            # key是工具名称，value是本工具的ActionNode对象，即其详细信息（任务状态、代码片段等）
             self.tool_node[task_name] = ActionNode(task_name, task_description, task_type)
+            # 存储的是依赖关系，key是任务名称，value是该任务依赖的前置任务列表
             self.tool_graph[task_name] = task_dependencies
             for pre_tool in self.tool_graph[task_name]:
                 self.tool_node[pre_tool].next_action[task_name] = task_description
