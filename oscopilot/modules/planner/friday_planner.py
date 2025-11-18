@@ -53,6 +53,7 @@ class FridayPlanner(BaseModule):
             Updates the tool graph with the decomposed subtasks and reorders tools based on
             dependencies through topological sorting.
         """
+        # 这里是告诉大模型工作文件夹的位置
         files_and_folders = self.environment.list_working_dir()
         tool_description_pair = json.dumps(tool_description_pair)
         api_list = get_open_api_description_pair()

@@ -71,6 +71,8 @@ class FridayAgent(BaseAgent):
                 print("Current task execution failed. Error: {}".format(str(e)))
                 break
 
+    # 1. 调用 judging 方法评估执行结果
+    # 2. 根据评估结果决定是完成任务、修复代码还是重新规划
     def self_refining(self, tool_name, execution_state: ExecutionState):
         """
         Analyzes and potentially refines the execution of a tool based on its current execution state. 
@@ -164,7 +166,7 @@ class FridayAgent(BaseAgent):
         The method dynamically adapts the execution strategy based on the type of sub-task, utilizing the executor component for code execution, API interaction, or question-answering as appropriate.
         """
         # tool_node是planner的核心属性,是一个dict数据结构，包含所有工具节点的信息
-        tool_node = self.planner.tool_node[tool_name]
+        tool_node = self.planner.tool_node[tool_name] # 其实就是一个子任务
         description = tool_node.description
         logging.info("The current subtask is: {subtask}".format(subtask=description))
         code = ''
@@ -176,17 +178,18 @@ class FridayAgent(BaseAgent):
         pre_tasks_info = self.planner.get_pre_tasks_info(tool_name)
         if node_type == 'Python':
             # retrieve existing tool
-            retrieve_name = self.retriever.retrieve_tool_name(description, 3)
-            relevant_code = self.retriever.retrieve_tool_code_pair(retrieve_name)
+            # 这里提取的都是生成的工具
+            retrieve_name = self.retriever.retrieve_tool_name(description, 3) # 这是一个list，通过相似性检索出来的
+            relevant_code = self.retriever.retrieve_tool_code_pair(retrieve_name) # 获取已存储的json文件中的code
         # task execute step
         if node_type == 'QA':
             if self.planner.tool_num == 1:
                 result = self.executor.question_and_answer_tool(pre_tasks_info, original_task, original_task)
             else:
-                result = self.executor.question_and_answer_tool(pre_tasks_info, original_task, description)
+                result = self.executor.question_and_answer_tool(pre_tasks_info, original_task, description) # 总任务和子任务
             print(result)
             logging.info(result)
-        else:
+        else: # 如果既不是已经生成的工具，也不是QA问题，那么就用api工具或者生成新的工具
             invoke = ''
             # Set up the generation format error handling mechanism
             try:
@@ -199,7 +202,7 @@ class FridayAgent(BaseAgent):
                 print("api call failed:", str(e))
                 return
             # Execute python tool class code
-            state = self.executor.execute_tool(code, invoke, node_type)
+            state = self.executor.execute_tool(code, invoke, node_type) # 执行工具
             result = state.result
             logging.info(state)
             output = {
@@ -208,6 +211,7 @@ class FridayAgent(BaseAgent):
             }
             logging.info(f"The subtask result is: {json.dumps(output)}")
 
+        # 记录工具的执行结果
         return ExecutionState(state, node_type, description, code, result, relevant_code)
     
     def judging(self, tool_name, state, code, description):

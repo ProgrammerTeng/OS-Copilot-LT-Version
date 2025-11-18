@@ -223,6 +223,7 @@ class ToolManager:
         return False
 
 
+    # Retrieve related tools based on similarity search
     def retrieve_tool_name(self, query, k=10):
         """
         Retrieves related tool names based on a similarity search against a query.

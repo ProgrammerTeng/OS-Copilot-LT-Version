@@ -44,7 +44,7 @@ class Env(BaseEnv):
             class: The language class corresponding to the provided name or alias, or None if not found.
         """        
         # 输入planner的节点类型即可
-        for lang in self.languages:
+        for lang in self.languages: # 遍历系统当前支持的语言执行器
             if language.lower() == lang.name.lower() or (
                 hasattr(lang, "aliases") and language.lower() in (alias.lower() for alias in lang.aliases)
             ):
@@ -64,8 +64,9 @@ class Env(BaseEnv):
         Returns:
             EnvState: The state after executing the code.
         """        
-        # 不用流式的话很简单，就是调一下lang的step就行了
+        # 不用流式的话很简单，就是调一下lang（执行器）的step就行了
         state = EnvState(command=code)
+        # lang是通过判断语言类型获取到的一个执行器类（jupyter、shell等）
         lang = self.get_language(language)()  # 输入planner的节点类型即可
         for output_line_dic in lang.step(code):
             if output_line_dic['format'] == 'active_line' or output_line_dic['content'] in ['', '\n']:
