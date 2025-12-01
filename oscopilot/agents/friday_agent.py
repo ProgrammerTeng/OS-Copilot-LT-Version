@@ -197,6 +197,7 @@ class FridayAgent(BaseAgent):
                     api_path = self.executor.extract_API_Path(description)
                     code = self.executor.api_tool(description, api_path, pre_tasks_info)
                 else:
+                    # 根据原先的代码等信息构造prompt，用大模型问答方式创建新的工具
                     code, invoke = self.executor.generate_tool(tool_name, description, node_type, pre_tasks_info, relevant_code)
             except Exception as e:
                 print("api call failed:", str(e))

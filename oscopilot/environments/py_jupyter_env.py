@@ -155,6 +155,7 @@ class PythonJupyterEnv(BaseEnv):
                 # Any errors produced here are our fault.
                 # Also, for python, you don't need them! It's just for active_line and stuff. Just looks pretty.
                 preprocessed_code = code
+            # 创建消息队列用于收集执行输出
             message_queue = queue.Queue()
             self._execute_code(preprocessed_code, message_queue)
             yield from self._capture_output(message_queue)
@@ -271,6 +272,7 @@ class PythonJupyterEnv(BaseEnv):
         # self.listener_thread.daemon = True
         self.listener_thread.start()
 
+        # 真正的执行代码
         self.kc.execute(code)
 
     def detect_active_line(self, line):

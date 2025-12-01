@@ -158,6 +158,7 @@ class SubprocessEnv(BaseEnv):
             self.done.clear()
 
             try:
+                # 相当于是向终端中输入代码并按回车
                 self.process.stdin.write(code + "\n")
                 self.process.stdin.flush()
                 break
